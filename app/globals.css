@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* ============================================================================
+ * SCHNITZY HAUS — CENTRALIZED THEME
+ * ----------------------------------------------------------------------------
+ * This is the ONE file that controls color and typography for the entire
+ * site. Change a value here and it updates everywhere those tokens are used
+ * (via Tailwind utilities like `bg-brand`, `text-ink`, `font-display`, etc.).
+ *
+ * Fonts are loaded once in `app/layout.tsx` (next/font/google) and exposed
+ * here as the same three CSS variables — that's the other half of "change
+ * the font in one place".
+ * ==========================================================================*/
+
+:root {
+  /* --- Brand palette --- */
+  --color-cream: #fbf1e1; /* page background */
+  --color-surface: #ffffff; /* cards, header, panels */
+  --color-ink: #241712; /* headings & primary text (warm near-black) */
+  --color-ink-muted: #6f6055; /* secondary / supporting text */
+  --color-brand: #cc2027; /* primary red accent (buttons, highlights) */
+  --color-brand-dark: #a3181d; /* hover/active state for brand red */
+  --color-gold: #eea82f; /* star ratings, small accents */
+  --color-border: #e9dcc8; /* hairlines, card borders */
+}
+
+@theme inline {
+  --color-cream: var(--color-cream);
+  --color-surface: var(--color-surface);
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-brand: var(--color-brand);
+  --color-brand-dark: var(--color-brand-dark);
+  --color-gold: var(--color-gold);
+  --color-border: var(--color-border);
+
+  /* fonts, wired to the CSS variables next/font/google sets in layout.tsx */
+  --font-display: var(--font-schnitzy-display);
+  --font-script: var(--font-schnitzy-script);
+  --font-sans: var(--font-schnitzy-sans);
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Hides the scrollbar on horizontally-scrollable rows (e.g. category tabs)
+   while keeping the element scrollable via touch/drag/wheel. */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

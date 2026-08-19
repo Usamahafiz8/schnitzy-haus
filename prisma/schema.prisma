@@ -1,0 +1,112 @@
+// Prisma schema for Schnitzy Haus.
+// The menu itself is NOT modeled here — it lives in `data/menu.ts` on purpose
+// (see README). Only the dynamic parts of the site (orders, reservations,
+// staff accounts) are backed by the database.
+//
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum StaffRole {
+  ADMIN
+  STAFF
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+enum Locale {
+  DE
+  EN
+}
+
+/// A dashboard user. Created via `prisma/seed.ts` (first ADMIN) or by an
+/// ADMIN from the /dashboard/staff screen.
+model StaffUser {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         StaffRole @default(STAFF)
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("staff_users")
+}
+
+/// A table reservation request submitted from the public site.
+model Reservation {
+  id        String            @id @default(cuid())
+  name      String
+  phone     String
+  email     String
+  partySize Int
+  date      DateTime          @db.Date
+  timeSlot  String
+  notes     String?
+  status    ReservationStatus @default(PENDING)
+  locale    Locale            @default(DE)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([date])
+  @@index([status])
+  @@map("reservations")
+}
+
+/// An online pickup order. Prices are always snapshotted on the OrderItem at
+/// the moment of purchase — `data/menu.ts` can change later without altering
+/// historical orders.
+model Order {
+  id           String      @id @default(cuid())
+  orderNumber  String      @unique
+  customerName String
+  phone        String
+  email        String
+  pickupTime   DateTime
+  notes        String?
+  status       OrderStatus @default(PENDING)
+  totalCents   Int
+  locale       Locale      @default(DE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  items        OrderItem[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId     String
+  nameSnapshot   String
+  unitPriceCents Int
+  quantity       Int
+  notes          String?
+
+  @@index([orderId])
+  @@map("order_items")
+}
